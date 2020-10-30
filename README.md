@@ -10,7 +10,7 @@ $ mvn jib:dockerBuild
 ### 3. Run Docker environment.
 ```#!bash
 $ cd _Docker
-$ docker_compose up
+$ docker-compose up
 ```
 
 ### 4. Call Sender REST endpoint.
