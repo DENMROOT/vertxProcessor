@@ -1,9 +1,13 @@
 package vertx.receiver;
 
 import static vertx.common.ClusteredConfiguration.getHazelcastConfiguration;
+import static vertx.common.Constants.PUBLIC_NODE_IP;
+import static vertx.common.Constants.PUBLIC_NODE_PORT;
 
+import com.hazelcast.config.Config;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
+import io.vertx.core.eventbus.EventBusOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
 import org.slf4j.Logger;
@@ -14,8 +18,15 @@ public class ReceiverDeployer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReceiverDeployer.class);
 
     public static void main(String[] args) {
-        ClusterManager mgr = new HazelcastClusterManager(getHazelcastConfiguration());
+        Config configuration = getHazelcastConfiguration();
+
+        ClusterManager mgr = new HazelcastClusterManager(configuration);
         VertxOptions options = new VertxOptions().setClusterManager(mgr);
+        options.setEventBusOptions(
+            new EventBusOptions()
+                .setHost(System.getenv(PUBLIC_NODE_IP))
+                .setPort(Integer.parseInt(System.getenv(PUBLIC_NODE_PORT)))
+        );
 
         Vertx.clusteredVertx(options, cluster -> {
                 if (cluster.succeeded()) {

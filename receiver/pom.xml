@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>vertxProcessing</artifactId>
@@ -32,6 +32,10 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-web</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-hazelcast</artifactId>
+        </dependency>
 
         <!-- Jackson -->
         <dependency>
@@ -58,10 +62,6 @@
             <artifactId>vertx-web-client</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>io.vertx</groupId>
-            <artifactId>vertx-hazelcast</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -84,6 +84,26 @@
                             <mainClass>vertx.receiver.ReceiverDeployer</mainClass>
                         </manifest>
                     </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <configuration>
+                    <from>
+                        <image>hazelcast/hazelcast</image>
+                    </from>
+                    <to>
+                        <image>vertx/receiver</image>
+                        <tags>
+                            <tag>latest</tag>
+                            <tag>${project.version}</tag>
+                        </tags>
+                    </to>
+                    <container>
+                        <creationTime>${maven.build.timestamp}</creationTime>
+                    </container>
                 </configuration>
             </plugin>
         </plugins>

@@ -22,26 +22,6 @@ public class SenderVerticle extends AbstractVerticle {
 
     private static final String PATH_PARAM_TO_RECEIVE_MESSAGE = "all";
 
-    @Override
-    public void start(Promise<Void> startPromise) {
-        Router router = createRouter(vertx, "Hello from clustered messenger example!");
-
-        router
-            .post("/sendForAll/:" + PATH_PARAM_TO_RECEIVE_MESSAGE)
-            .handler(this::sendMessageForAllReceivers);
-
-        createAnHttpServer(vertx, router, config(), startPromise);
-    }
-
-    private void sendMessageForAllReceivers(RoutingContext routingContext) {
-        EventBus eventBus = vertx.eventBus();
-        String message = routingContext.request().getParam(PATH_PARAM_TO_RECEIVE_MESSAGE);
-        eventBus.publish(ADDRESS, message);
-        LOGGER.info("Current Thread Id {} Is Clustered {}, message: {} ",
-            Thread.currentThread().getId(), vertx.isClustered(), message);
-        routingContext.response().end(message);
-    }
-
     public static Router createRouter(Vertx vertx, String welcomeMessage) {
         Router router = Router.router(vertx);
         router.route("/").handler(routingContext -> {
@@ -74,5 +54,25 @@ public class SenderVerticle extends AbstractVerticle {
                     promise.fail(result.cause());
                 }
             });
+    }
+
+    @Override
+    public void start(Promise<Void> startPromise) {
+        Router router = createRouter(vertx, "Hello from clustered messenger example!");
+
+        router
+            .post("/sendForAll/:" + PATH_PARAM_TO_RECEIVE_MESSAGE)
+            .handler(this::sendMessageForAllReceivers);
+
+        createAnHttpServer(vertx, router, config(), startPromise);
+    }
+
+    private void sendMessageForAllReceivers(RoutingContext routingContext) {
+        EventBus eventBus = vertx.eventBus();
+        String message = routingContext.request().getParam(PATH_PARAM_TO_RECEIVE_MESSAGE);
+        eventBus.send(ADDRESS, message);
+        LOGGER.info("Current Thread Id {} Is Clustered {}, message: {} ",
+            Thread.currentThread().getId(), vertx.isClustered(), message);
+        routingContext.response().end(message);
     }
 }

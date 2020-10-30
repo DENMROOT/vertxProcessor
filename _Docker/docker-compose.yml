@@ -1,0 +1,53 @@
+version: '3'
+
+networks:
+  vertx:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.168.2.0/24
+
+services:
+  sender_node:
+    image: vertx/sender:latest
+    container_name: sender_node
+    networks:
+      vertx:
+        ipv4_address: 172.168.2.8
+    ports:
+      - '5701:5701'
+      - '8080:8080'
+      - '32001:32001'
+    environment:
+      - PUBLIC_NODE_IP=172.168.2.8
+      - PUBLIC_NODE_PORT=32001
+
+  reveiver_node_1:
+    image: vertx/receiver:latest
+    container_name: receiver_node_1
+    networks:
+      vertx:
+        ipv4_address: 172.168.2.9
+    ports:
+      - '5704:5701'
+      - '32002:32002'
+    environment:
+      - PUBLIC_NODE_IP=172.168.2.9
+      - PUBLIC_NODE_PORT=32002
+    depends_on:
+      - sender_node
+
+  reveiver_node_2:
+    image: vertx/receiver:latest
+    container_name: receiver_node_2
+    networks:
+      vertx:
+        ipv4_address: 172.168.2.10
+    ports:
+      - '5707:5701'
+      - '32003:32003'
+    environment:
+      - PUBLIC_NODE_IP=172.168.2.10
+      - PUBLIC_NODE_PORT=32003
+    depends_on:
+      - sender_node
